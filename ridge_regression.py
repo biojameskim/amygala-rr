@@ -5,10 +5,10 @@ from sklearn.linear_model import RidgeCV
 from sklearn.model_selection import RepeatedKFold
 
 # clip_vectors should be (10000, 512) for 10000 images and 512 features
-clip_vectors = np.load('10k_normalized_clip_vectors.npy')
+clip_vectors = np.load('data/10k_normalized_clip_vectors.npy')
 # activation should be (30000,241) for 30000 trials and 241 voxels
 # 10k images but 30k trials (bc each image appears 3 times)
-activation = np.load('beta_L_amygdala.npy')
+activation = np.load('data/beta_L_amygdala.npy')
 
 exp_design_file = "experiments/nsd_expdesign.mat"
 exp_design = loadmat(exp_design_file)
@@ -100,7 +100,7 @@ def plot_validation_response(model, matched_clip_vectors, activation, train_mask
     plt.title('Average Predicted Response vs. Average Measured Response')
 
     # plot the line y = x
-    x = np.linspace(0, 50, 100)
+    x = np.linspace(-3, 3, 100)
     y = x
     plt.plot(x, y, '-r', label='y=x')
 

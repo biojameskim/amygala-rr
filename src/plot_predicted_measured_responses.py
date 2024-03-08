@@ -64,18 +64,18 @@ def plot_validation_response(model, matched_clip_vectors, activation, train_mask
     # validation set has 3000 trials
     ordering_array = ordering_array[~train_mask]
 
-    avg_predicted_response_dict = create_predicted_responses_dict(ordering_array, predicted_response)
+    predicted_response_dict = create_predicted_responses_dict(ordering_array, predicted_response)
     avg_measured_response_dict = create_averaged_responses_dict(ordering_array, measured_response)
     
     # next step is to convert these dictionaries into arrays and plot them
-    avg_predicted_response_array = np.array(list(avg_predicted_response_dict.values()))
+    predicted_response_array = np.array(list(predicted_response_dict.values()))
     avg_measured_response_array = np.array(list(avg_measured_response_dict.values())) 
 
     # plot the average predicted response against the average measured response
-    plt.scatter(avg_measured_response_array, avg_predicted_response_array)
+    plt.scatter(avg_measured_response_array, predicted_response_array)
     plt.xlabel('Average Measured Response')
-    plt.ylabel('Average Predicted Response')
-    plt.title('Average Predicted Response vs. Average Measured Response')
+    plt.ylabel('Predicted Response')
+    plt.title('Predicted Response vs. Average Measured Response')
 
     # plot the line y = x
     x = np.linspace(-3, 3, 100)

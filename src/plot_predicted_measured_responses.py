@@ -11,13 +11,13 @@ def create_responses_dict(ordering_array, responses, sort=False):
     where each response is a 241-dim vector. 
     """
     order_to_responses = {}
-
+    
     for i in range(len(ordering_array)):
         key = ordering_array[i]
         if key in order_to_responses:
-            order_to_responses[key].append(responses[i])
+            order_to_responses[key] = np.vstack((order_to_responses[key], responses[i]))
         else:
-            order_to_responses[key] = [responses[i]]
+            order_to_responses[key] = responses[i]
 
     if sort:
         return dict(sorted(order_to_responses.items()))

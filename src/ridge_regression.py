@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.io import loadmat
 from sklearn.linear_model import RidgeCV
 from sklearn.model_selection import RepeatedKFold
@@ -32,7 +31,7 @@ def match_ordering (ordering, clip_vectors):
         matched_clip_vectors[i] = clip_vectors[ordering[i]]
     return matched_clip_vectors
 
-def ridge_regression_cv (X, y, alphas, n_splits, n_repeats, random_state, scoring):
+def train_ridge_regression_cv_model (X, y, alphas, n_splits, n_repeats, random_state, scoring):
     """
     [ridge_regression_cv] returns the best ridge regression model with cross-validation.
     The model is trained on the input [X] and output [y] with the regularization 
@@ -63,7 +62,7 @@ if __name__ == "__main__":
 
     matched_clip_vectors = match_ordering(ordering, clip_vectors)
 
-    model = ridge_regression_cv(
+    model = train_ridge_regression_cv_model(
         matched_clip_vectors[train_mask],
         activation[train_mask], 
         alphas=[1e-3], 

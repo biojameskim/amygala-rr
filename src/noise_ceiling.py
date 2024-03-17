@@ -26,11 +26,8 @@ def create_noise_ceiling(model, matched_clip_vectors, train_mask, validation, va
     # For example, order_to_responses = {625: [average_response, remaining_response], ...}
 
     # The order should be preserved as the indices are the same for averaged_responses and remaining_responses
-    # **************************************************************************
-    # is this size right? maybe i should just vstack. seems like there's some divison by zero going on
     averaged_responses = np.empty((1000, 241))
     remaining_responses = np.empty((1000, 241))
-    # **************************************************************************
 
     for i, key in enumerate(response_dict):    
         values = response_dict[key] 
@@ -47,9 +44,19 @@ def calculate_correlation(averaged_responses, remaining_responses, predicted_res
     """
     [calculate_correlation] calculates the correlation between the average measured response and the remaining response.
     It also calculates the correlation between the average measured response and the predicted response.
+
+    averaged_responses.shape = (1000, 241)
+    remaining_responses.shape = (1000, 241)
+    predicted_responses.shape = (1000, 241)
+
+    Returns correlation vectors of size (241, 1)
     """
-    corr_1 = np.corrcoef(averaged_responses, remaining_responses)
-    corr_2 = np.corrcoef(averaged_responses, predicted_responses)
+    corr_1 = np.empty((241, 1))
+    corr_2 = np.empty((241, 1))
+
+    for i in range(0,241):
+        corr_1[i] = np.correlate(averaged_responses[:,i], remaining_responses[:,i])
+        corr_2[i] = np.correlate(averaged_responses[:,i], predicted_responses[:,i])
 
     return corr_1, corr_2
       

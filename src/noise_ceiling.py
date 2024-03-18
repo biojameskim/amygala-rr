@@ -2,6 +2,8 @@ import numpy as np
 
 import plot_predicted_measured_responses as ppr
 import ridge_regression as rr
+import matplotlib.pyplot as plt
+from scipy.stats import ttest_1samp
 
 def create_noise_ceiling(model, matched_clip_vectors, train_mask, validation, val_ordering_array):
     """
@@ -44,6 +46,9 @@ def calculate_correlation(averaged_responses, remaining_responses, predicted_res
     """
     [calculate_correlation] calculates the correlation between the average measured response and the remaining response.
     It also calculates the correlation between the average measured response and the predicted response.
+    
+    Because we want to see how accurate the prediction at each voxel is, each entry
+    in the return vector is the correlation at each voxel.
 
     averaged_responses.shape = (1000, 241)
     remaining_responses.shape = (1000, 241)
@@ -59,20 +64,21 @@ def calculate_correlation(averaged_responses, remaining_responses, predicted_res
         corr_2[i] = np.correlate(averaged_responses[:,i], predicted_responses[:,i])
 
     return corr_1, corr_2
+
+def compute_p_values(corr_1, corr_2):
+    """
+    [compute_p_values] computes the p-value of the 2 correlations.
+    """
+    ttest_corr1 = ttest_1samp(a=corr_1, popmean=0)
+    ttest_corr2 = ttest_1samp(a=corr_2, popmean=0)
+    
+    return ttest_corr1.pvalue, ttest_corr2.pvalue
       
 def plot_noise_ceiling(corr_1, corr_2):
     """
     [plot_noise_ceiling] compares the 2 correlations using a violin plot.
     """
     pass
-    # plot the violin plot
-    # x-axis: ["Measured vs Remaining", "Measured vs Predicted"]
-    # y-axis: correlation values
-    # title: "Noise Ceiling"
-    # labels: "Measured vs Remaining", "Measured vs Predicted"
-    # color: ["blue", "orange"]
-    # plot the mean of the correlation values
-    # plot the 95% confidence interval of the correlation values
 
 
 if __name__ == "__main__":
@@ -95,6 +101,10 @@ if __name__ == "__main__":
     averaged_responses, remaining_responses, predicted_responses = create_noise_ceiling(
         model, matched_clip_vectors, rr.train_mask, validation, val_ordering_array)
     
-    corr_1, corr_2 = calculate_correlation(averaged_responses, remaining_responses, predicted_responses)
-    print("corr_1 (averaged vs remaining): ", corr_1)
-    print("corr_2 (averaged vs predicted): ", corr_2)
+    observed_correlations, predicted_correlations = calculate_correlation(averaged_responses, remaining_responses, predicted_responses)
+
+    pvalue1, pvalue2 = compute_p_values(observed_correlations, predicted_correlations)
+
+
+
+

@@ -3,7 +3,7 @@ import numpy as np
 import plot_predicted_measured_responses as ppr
 import ridge_regression as rr
 import matplotlib.pyplot as plt
-from scipy.stats import ttest_1samp
+from scipy import stats
 
 def create_noise_ceiling(model, matched_clip_vectors, train_mask, validation, val_ordering_array):
     """
@@ -42,10 +42,12 @@ def create_noise_ceiling(model, matched_clip_vectors, train_mask, validation, va
 
     return averaged_responses, remaining_responses, predicted_responses
 
-def calculate_correlation(averaged_responses, remaining_responses, predicted_responses):
+def calculate_corr_and_pvalue(resp1, resp2):
     """
-    [calculate_correlation] calculates the correlation between the average measured response and the remaining response.
-    It also calculates the correlation between the average measured response and the predicted response.
+    [calculate_corr_and_pvalue] calculates the correlations and pvalues between responses 1 and 2.
+    
+    We want to calculate the corr between the average measured response and the remaining response.
+    We also want to calculate the corr between the average measured response and the predicted response.
     
     Because we want to see how accurate the prediction at each voxel is, each entry
     in the return vector is the correlation at each voxel.
@@ -54,31 +56,45 @@ def calculate_correlation(averaged_responses, remaining_responses, predicted_res
     remaining_responses.shape = (1000, 241)
     predicted_responses.shape = (1000, 241)
 
-    Returns correlation vectors of size (241, 1)
+    Returns [correlations] correlation vector of size (241, 1)
+    Returns [p_values] p-value vector of size (241, 1)
     """
-    corr_1 = np.empty((241, 1))
-    corr_2 = np.empty((241, 1))
+    correlations = np.empty((241, 1))
+    p_values = np.empty((241, 1))
 
     for i in range(0,241):
-        corr_1[i] = np.correlate(averaged_responses[:,i], remaining_responses[:,i])
-        corr_2[i] = np.correlate(averaged_responses[:,i], predicted_responses[:,i])
+        corr, p = stats.pearsonr(resp1[:, i], resp2[:, i])
+        correlations[i] = corr
+        p_values[i] = p
 
-    return corr_1, corr_2
+    return correlations, p_values
 
-def compute_p_values(corr_1, corr_2):
+def num_sig_voxels(pvals, alpha=0.05):
     """
-    [compute_p_values] computes the p-value of the 2 correlations.
+    [num_sig_voxels] returns the number of significant voxels given the p-values and alpha.
+    Adjusts the p-values by the false discovery rate.
     """
-    ttest_corr1 = ttest_1samp(a=corr_1, popmean=0)
-    ttest_corr2 = ttest_1samp(a=corr_2, popmean=0)
-    
-    return ttest_corr1.pvalue, ttest_corr2.pvalue
+    fdr = stats.false_discovery_control(pvals)
+    indices = np.where(fdr < alpha)
+    return len(indices)
       
-def plot_noise_ceiling(corr_1, corr_2):
+def plot_correlations(correlations, correlations2):
     """
-    [plot_noise_ceiling] compares the 2 correlations using a violin plot.
+    [plot_correlations] compares the 2 correlations using a violin plot.
     """
-    pass
+    x_pos1 = 1
+    x_pos2 = 2
+
+    plt.violinplot(correlations, positions=[x_pos1])
+    plt.violinplot(correlations2, positions=[x_pos2])
+    
+    plt.xlabel("Correlation Type")
+    plt.ylabel("Correlation")
+    plt.title("Correlation Densities")
+    
+    plt.xticks([x_pos1, x_pos2], ['average vs remaining', 'average vs predicted'])
+
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -101,10 +117,12 @@ if __name__ == "__main__":
     averaged_responses, remaining_responses, predicted_responses = create_noise_ceiling(
         model, matched_clip_vectors, rr.train_mask, validation, val_ordering_array)
     
-    observed_correlations, predicted_correlations = calculate_correlation(averaged_responses, remaining_responses, predicted_responses)
+    observed_correlations, pvals1 = calculate_corr_and_pvalue(averaged_responses, remaining_responses)
+    predicted_correlations, pvals2 = calculate_corr_and_pvalue(averaged_responses, predicted_responses)
 
-    pvalue1, pvalue2 = compute_p_values(observed_correlations, predicted_correlations)
+    plot_correlations(observed_correlations, predicted_correlations)
 
+    
 
 
 

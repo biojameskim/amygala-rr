@@ -1,4 +1,6 @@
 todo.txt
 __pycache__/
 test.py
+data/
+experiments/
 ```

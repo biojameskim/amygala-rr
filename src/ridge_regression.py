@@ -31,8 +31,9 @@ def train_ridge_regression_cv_model (X, y, alphas, n_splits, n_repeats, random_s
     The model is trained on the input [X] and output [y] with the regularization 
     parameter [alpha].
     
-    Input x: (30k, 512) -> (27k, 512)
-    Output y: (30k, 241) -> (27k, 241)
+    Example for sub1 - beta_L_amygdala:
+    Input x (clip vectors): (30k, 512) -> (27k, 512) - after removing validation images
+    Output y (measured_responses): (30k, 241) -> (27k, 241) - after removing validation images
     """
     cv = RepeatedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
     model = RidgeCV(alphas=alphas, cv=cv, scoring=scoring)
@@ -95,8 +96,9 @@ def ridge_regression(subject_number, roi_data_file_path, clip_vectors_file_path)
 
 if __name__ == "__main__":
     # clip_vectors.shape = (10000, 512)
-    # activation.shape = (30000, 241)
-    # ordering.shape = (30000,)
+    # activation.shape = (num_trials, num_voxels)
+    # master_ordering.shape = (30000,)
+    # ordering.shape = (num_trials,)
 
     subject_number, roi_data_file, clip_vector_file = get_files_from_arguments()
     

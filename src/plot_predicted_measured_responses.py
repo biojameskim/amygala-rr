@@ -65,8 +65,8 @@ def plot_validation_response(model, matched_clip_vectors, activation, train_mask
     # ~train_mask is the validation set
     predicted_responses = model.predict(matched_clip_vectors[~train_mask])
     measured_responses = activation[~train_mask]
-    # shape of predicted responses (3000, 241)
-    # shape of measured responses (3000, 241)
+    # shape of predicted responses (3000, num_voxels)
+    # shape of measured responses (3000, num_voxels)
 
     # validation set has 3000 trials
     ordering_array = ordering_array[~train_mask]

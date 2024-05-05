@@ -8,7 +8,7 @@ def create_responses_dict(ordering_array, responses, sort=False):
     If [sort] is True, then the dictionary is sorted by key.
 
     For example, [order_to_responses = {..., 625: [response_1, response_2, response_3], ...}]
-    where each response is a 241-dim vector. 
+    where each response is a N-dim vector (N = # of voxels)
     """
     order_to_responses = {}
     
@@ -28,7 +28,7 @@ def average_dictionary_values(dictionary):
     [average_dictionary_values] averages the values of the dictionary.
 
     For example, [order_to_responses = {..., 625: [np.mean(response_1 + response_2 + response_3)], ...}]
-    where each response is a 241-dim vector.
+    where each response is a N-dim vector (N = # of voxels)
     """
     for key in dictionary:
         dictionary[key] = np.mean(dictionary[key], axis=0)
